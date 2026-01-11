@@ -2,6 +2,8 @@ import os
 import streamlit as st
 import random
 import time
+import pandas as pd
+from sqlalchemy import create_engine, inspect
 from langchain_community.utilities import SQLDatabase
 from langchain.chat_models import init_chat_model
 from langchain_core.prompts import ChatPromptTemplate
@@ -9,7 +11,7 @@ from langchain_community.tools.sql_database.tool import QuerySQLDatabaseTool
 from typing_extensions import TypedDict
 from typing_extensions import Annotated
 from dotenv import load_dotenv
-import shared_funcs
+import shared_funcs as sf
 
 load_dotenv()
 
@@ -61,11 +63,6 @@ def generate_answer(state: State):
     return {"answer": response.content}
 
 
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-db_path = shared_funcs.database_path('apple_weatherkit')
-db = SQLDatabase.from_uri(f"{db_path}")
-llm = init_chat_model("gemini-3-pro-preview", model_provider="google_genai")
-
 system_message = """
 Given an input question, create a syntactically correct {dialect} query to
 run to help find the answer. Unless the user specifies in his question a
@@ -84,9 +81,58 @@ Only use the following tables:
 {table_info}
 """
 
+
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+db_path = sf.database_path('apple_weatherkit')
+db = SQLDatabase.from_uri(f"{db_path}")
+llm = init_chat_model("gemini-3-pro-preview", model_provider="google_genai")
+
+engine = create_engine(db_path)
+
+@st.cache_resource
+def get_db_connection():
+    """Establish and cache the database connection."""
+    return engine
+
+conn = get_db_connection()
+
 st.write("Streamlit loves LLMs! 🤖 [Build your own chat app](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps) in minutes, then make it powerful by adding images, dataframes, or even input widgets to the chat.")
 
 st.caption("Note that this demo app is connected to the Google Gemini Pro latest version LLMs. Enjoy!!")
+
+st.sidebar.header("Database Information")
+
+try:
+    inspector = inspect(conn)
+    table_names = inspector.get_table_names()
+    
+    st.sidebar.subheader("Available Tables")
+    if table_names:
+        selected_table = st.sidebar.selectbox("Select a table to view schema:", table_names)
+    else:
+        st.sidebar.info("No tables found in the database.")
+
+except Exception as e:
+    st.sidebar.error(f"Error connecting to DB: {e}")
+    table_names = []
+    selected_table = None
+
+st.sidebar.markdown("**Connection Status:** Connected")
+st.sidebar.write(f"**Database Dialect:** {conn.dialect.name}")
+
+if selected_table:
+    st.subheader(f"Schema for Table: `{selected_table}`")
+    # Query the table schema
+    columns = inspector.get_columns(selected_table)
+    schema_df = pd.DataFrame(columns)
+    st.dataframe(schema_df)
+
+    st.subheader(f"First 10 Rows of `{selected_table}`")
+    # Query data and display
+    data_df = pd.read_sql_query(f"SELECT * FROM {selected_table} LIMIT 10", conn)
+    st.dataframe(data_df)
+elif table_names:
+    st.info("Select a table from the sidebar to view its details.")
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -98,7 +144,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Accept user input
-if prompt := st.chat_input("What is up?"):
+if prompt := st.chat_input("What would you like to discover about the Database?"):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     # Display user message in chat message container
@@ -116,7 +162,9 @@ if prompt := st.chat_input("What is up?"):
         query = write_query({"question": question})
         result = execute_query({"query": query})
         answer = generate_answer({"question": question, "query": query, "result": result})
+        full_query = query['query']
         full_response = answer['answer'][0]['text']
         message_placeholder.markdown(full_response)
     # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": full_query})
     st.session_state.messages.append({"role": "assistant", "content": full_response})

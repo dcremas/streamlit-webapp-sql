@@ -1,11 +1,11 @@
-### Title: Sample Streamlit Web Application for Interactive LLM & Data Model Capabilities.
+### Title: A Web Application that integrates a Google Gemini Large Language Model with SQL Relational Database.
 
 *To see the full codebase for this project:*
 [Link to my github account](https://github.com/dcremas/streamlit-webapp-sql)
 
 #### Description:
 
-#### A Project intended to serve as a sample application to enable the user with no prior SQL knowledge to be able to answer in-depth questions about a pre-populated relational database .
+#### A Project intended to serve as a sample application to enable the user with no prior SQL knowledge to be able to answer in-depth questions about a mature relational database .
 
 ##### Features:
 
@@ -19,9 +19,10 @@
 3. LangChain
 4. Streamlit
 5. Pandas
-6. AWS
-7. Heroku
-8. Postgres Database
+6. SQL Alchemy
+7. AWS
+8. Heroku
+9. Postgres Database
 
 ##### Collaborators:
 
