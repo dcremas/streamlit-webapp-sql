@@ -81,10 +81,11 @@ Only use the following tables:
 {table_info}
 """
 
+db_select = "apple_weatherkit"
 llm_select = "gemini-3-pro-preview"
 model_provider = "google_genai"
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-db_path = sf.database_path('apple_weatherkit')
+db_path = sf.database_path(db_select)
 db = SQLDatabase.from_uri(f"{db_path}")
 llm = init_chat_model(llm_select, model_provider=model_provider)
 
@@ -100,13 +101,17 @@ conn = get_db_connection()
 st.set_page_config(page_title="NL to SQL Web App", layout="wide")
 st.write("A Web Application that integrates a Google Gemini Large Language Model with a SQL Relational Database")
 st.caption(f"This Web App is connected to the {llm_select} latest version LLMs. Enjoy!!")
-st.sidebar.header("Database Information")
+st.sidebar.header(f"Database Information:")
+st.sidebar.markdown(f"- {db_select}")
 
 try:
     inspector = inspect(conn)
     table_names = inspector.get_table_names()
     
-    st.sidebar.subheader("Available Tables")
+    st.sidebar.subheader("Available Tables:")
+    for table in table_names:
+        st.sidebar.markdown(f"- {table}")
+
     if table_names:
         selected_table = st.sidebar.selectbox("Select a table to view schema:", table_names)
     else:
