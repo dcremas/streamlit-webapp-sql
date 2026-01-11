@@ -1,4 +1,4 @@
-### Title: A Web Application that integrates a Google Gemini Large Language Model with SQL Relational Database.
+### Title: A Web Application that integrates a Google Gemini Large Language Model with a SQL Relational Database.
 
 *To see the full codebase for this project:*
 [Link to my github account](https://github.com/dcremas/streamlit-webapp-sql)

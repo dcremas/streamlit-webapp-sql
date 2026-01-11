@@ -81,11 +81,12 @@ Only use the following tables:
 {table_info}
 """
 
-
+llm_select = "gemini-3-pro-preview"
+model_provider = "google_genai"
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 db_path = sf.database_path('apple_weatherkit')
 db = SQLDatabase.from_uri(f"{db_path}")
-llm = init_chat_model("gemini-3-pro-preview", model_provider="google_genai")
+llm = init_chat_model(llm_select, model_provider=model_provider)
 
 engine = create_engine(db_path)
 
@@ -96,10 +97,9 @@ def get_db_connection():
 
 conn = get_db_connection()
 
-st.write("Streamlit loves LLMs! 🤖 [Build your own chat app](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps) in minutes, then make it powerful by adding images, dataframes, or even input widgets to the chat.")
-
-st.caption("Note that this demo app is connected to the Google Gemini Pro latest version LLMs. Enjoy!!")
-
+st.set_page_config(page_title="NL to SQL Web App", layout="wide")
+st.write("A Web Application that integrates a Google Gemini Large Language Model with a SQL Relational Database")
+st.caption(f"This Web App is connected to the {llm_select} latest version LLMs. Enjoy!!")
 st.sidebar.header("Database Information")
 
 try:
