@@ -34,7 +34,7 @@ def write_query(state: State):
     prompt = query_prompt_template.invoke(
         {
             "dialect": db.dialect,
-            "top_k": 100,
+            "top_k": 500,
             "table_info": db.get_table_info(),
             "input": state["question"],
         }
@@ -79,6 +79,8 @@ pay attention to which column is in which table.
 
 Only use the following tables:
 {table_info}
+
+Always include the query at the top of the response.
 """
 
 db_select = "apple_weatherkit"
@@ -99,8 +101,9 @@ def get_db_connection():
 conn = get_db_connection()
 
 st.set_page_config(page_title="NL to SQL Web App", layout="wide")
-st.write("A Web Application that integrates a Google Gemini Large Language Model with a SQL Relational Database")
-st.caption(f"This Web App is connected to the {llm_select} latest version LLMs. Enjoy!!")
+st.header("A Natural Language to Sequel Web Application")
+st.write("An integration of the latest Google Gemini Large Language Model with a Relational Database")
+st.caption(f"**This Web App is connected to the {llm_select} latest version LLM. Enjoy!!")
 st.sidebar.header(f"Database Information:")
 st.sidebar.markdown(f"- {db_select}")
 
