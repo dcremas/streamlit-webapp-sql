@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 
-def database_path(curr_db='apple_weatherkit'):
+def database_path(curr_db):
 
     load_dotenv()
 
@@ -17,7 +17,7 @@ def database_path(curr_db='apple_weatherkit'):
     return f"{dialect}+{driver}://{username}:{password}@{host}:{port}/{curr_db}"
 
 
-def connection_uri(curr_db='finance'):
+def connection_uri(curr_db):
     from configparser import ConfigParser
 
     config = ConfigParser()

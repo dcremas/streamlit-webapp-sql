@@ -81,7 +81,7 @@ Only use the following tables:
 {table_info}
 """
 
-db_select = "apple_weatherkit"
+db_select = os.getenv('curr_db')
 llm_select = "gemini-3-pro-preview"
 model_provider = "google_genai"
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
@@ -105,7 +105,7 @@ st.sidebar.markdown("- **Connection Status:** *Connected*")
 
 st.set_page_config(page_title="NL to SQL Web App", layout="wide")
 st.header("A Natural Language (Text) to SQL Web Application")
-st.write("An integration of the latest Google Gemini LLM with an internal Relational Database")
+st.write("An integration of the latest Google Gemini LLM with an internal Relational Database.")
 st.caption(f"**This Web App is connected to the {llm_select} latest version, LLM. Enjoy!!")
 
 try:
