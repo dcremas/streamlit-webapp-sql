@@ -113,8 +113,8 @@ try:
     table_names = inspector.get_table_names()
     
     st.sidebar.subheader("Available Tables:")
-    for table in table_names:
-        st.sidebar.markdown(f"- {table}")
+    for idx, table in enumerate(table_names):
+        st.sidebar.markdown(f"{idx + 1}. {table}")
 
     if table_names:
         selected_table = st.sidebar.selectbox("Select a table to view schema:", table_names)
@@ -169,8 +169,8 @@ if prompt := st.chat_input("What would you like to discover about the Database?"
         result = execute_query({"query": query})
         answer = generate_answer({"question": question, "query": query, "result": result})
         full_query = query['query']
-        st.markdown("Generated SQL:")
-        st.markdown(full_query)
+        st.markdown("- Generated SQL:")
+        st.markdown(f"*{full_query}*")
         full_response = answer['answer'][0]['text']
         message_placeholder.markdown(full_response)
     # Add assistant response to chat history
