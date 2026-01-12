@@ -175,3 +175,4 @@ if prompt := st.chat_input("What would you like to discover about the Database?"
         message_placeholder.markdown(full_response)
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
+    st.session_state.messages.append({"role": "assistant", "content": full_query})
