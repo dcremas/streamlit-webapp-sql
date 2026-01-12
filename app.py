@@ -79,8 +79,6 @@ pay attention to which column is in which table.
 
 Only use the following tables:
 {table_info}
-
-Always include the query at the top of the response.
 """
 
 db_select = "apple_weatherkit"
@@ -100,12 +98,15 @@ def get_db_connection():
 
 conn = get_db_connection()
 
-st.set_page_config(page_title="NL to SQL Web App", layout="wide")
-st.header("A Natural Language to Sequel Web Application")
-st.write("An integration of the latest Google Gemini Large Language Model with a Relational Database")
-st.caption(f"**This Web App is connected to the {llm_select} latest version LLM. Enjoy!!")
 st.sidebar.header(f"Database Information:")
-st.sidebar.markdown(f"- {db_select}")
+st.sidebar.write(f"- **Database Dialect:** *{conn.dialect.name}*")
+st.sidebar.write(f"- **Database Name:** *{db_select}*")
+st.sidebar.markdown("- **Connection Status:** *Connected*")
+
+st.set_page_config(page_title="NL to SQL Web App", layout="wide")
+st.header("A Natural Language (Text) to SQL Web Application")
+st.write("An integration of the latest Google Gemini LLM with an internal Relational Database")
+st.caption(f"**This Web App is connected to the {llm_select} latest version, LLM. Enjoy!!")
 
 try:
     inspector = inspect(conn)
@@ -124,9 +125,6 @@ except Exception as e:
     st.sidebar.error(f"Error connecting to DB: {e}")
     table_names = []
     selected_table = None
-
-st.sidebar.markdown("**Connection Status:** Connected")
-st.sidebar.write(f"**Database Dialect:** {conn.dialect.name}")
 
 if selected_table:
     st.subheader(f"Schema for Table: `{selected_table}`")
@@ -171,8 +169,9 @@ if prompt := st.chat_input("What would you like to discover about the Database?"
         result = execute_query({"query": query})
         answer = generate_answer({"question": question, "query": query, "result": result})
         full_query = query['query']
+        st.markdown("Generated SQL:")
+        st.markdown(full_query)
         full_response = answer['answer'][0]['text']
         message_placeholder.markdown(full_response)
     # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": full_query})
     st.session_state.messages.append({"role": "assistant", "content": full_response})

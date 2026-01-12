@@ -1,11 +1,14 @@
-### Title: A Web Application that integrates a Google Gemini Large Language Model with a SQL Relational Database.
+### Title: A Web Application that integrates a Google Gemini LLM with an internal SQL Relational Database (Postgresql).
 
 *To see the full codebase for this project:*
 [Link to my github account](https://github.com/dcremas/streamlit-webapp-sql)
 
+*To test drive the Web Application:*
+[Link to the Web App](https://streamlit-webapp-sql-e62f7c53e678.herokuapp.com/)
+
 #### Description:
 
-#### A Project intended to serve as a sample application to enable the user with no prior SQL knowledge to be able to answer in-depth questions about a mature relational database .
+#### A Project intended to serve as a sample application to enable a user with or without any prior SQL knowledge to be able to answer in-depth questions about an internal relational database.  The database for this project is a 'live' hourly weather data store that is currently being utilized for multiple data visualizations also hosted on the web. The LangChain framework allows for the integration of many different LLM's with internal data stores. 
 
 ##### Features:
 
