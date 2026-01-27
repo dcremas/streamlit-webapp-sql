@@ -64,7 +64,7 @@ def generate_answer(state: State, chat_history=None):
             elif msg["role"] == "assistant" and not msg['content'].startswith("SELECT"):
                 # Skip SQL queries, only include actual answers
                 history_context += f"Assistant: {msg['content']}\n"
-    
+
     prompt = (
         "Given the following user question, corresponding SQL query, "
         "and SQL result, answer the user question. "
@@ -126,7 +126,7 @@ st.caption(f"**This Web App is connected to the {llm_select} latest version, LLM
 try:
     inspector = inspect(conn)
     table_names = inspector.get_table_names()
-    
+
     st.sidebar.subheader("Available Tables:")
     for idx, table in enumerate(table_names):
         st.sidebar.markdown(f"{idx + 1}. {table}")
