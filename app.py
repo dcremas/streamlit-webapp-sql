@@ -50,12 +50,27 @@ def execute_query(state: State):
     return {"result": execute_query_tool.invoke(state["query"])}
 
 
-def generate_answer(state: State):
+def generate_answer(state: State, chat_history=None):
     """Answer question using retrieved information as context."""
+    # Build context from recent chat history
+    history_context = ""
+    if chat_history:
+        # Get last N messages (e.g., last 6 messages = 3 exchanges)
+        recent_history = chat_history[-6:] if len(chat_history) > 6 else chat_history
+        history_context = "\n\nRecent conversation:\n"
+        for msg in recent_history:
+            if msg["role"] == "user":
+                history_context += f"User: {msg['content']}\n"
+            elif msg["role"] == "assistant" and not msg['content'].startswith("SELECT"):
+                # Skip SQL queries, only include actual answers
+                history_context += f"Assistant: {msg['content']}\n"
+    
     prompt = (
         "Given the following user question, corresponding SQL query, "
-        "and SQL result, answer the user question.\n\n"
-        f"Question: {state['question']}\n"
+        "and SQL result, answer the user question. "
+        "Use the recent conversation history for context if relevant."
+        f"{history_context}\n\n"
+        f"Current Question: {state['question']}\n"
         f"SQL Query: {state['query']}\n"
         f"SQL Result: {state['result']}"
     )
@@ -70,7 +85,7 @@ specific number of examples they wish to obtain, always limit your query to
 at most {top_k} results. You can order the results by a relevant column to
 return the most interesting examples in the database.
 
-Never query for all the columns from a specific table, only ask for a the
+Never query for all the columns from a specific table, only ask for a 
 few relevant columns given the question.
 
 Pay attention to use only the column names that you can see in the schema
@@ -127,16 +142,18 @@ except Exception as e:
     selected_table = None
 
 if selected_table:
-    st.subheader(f"Schema for Table: `{selected_table}`")
     # Query the table schema
     columns = inspector.get_columns(selected_table)
     schema_df = pd.DataFrame(columns)
-    st.dataframe(schema_df)
+    st.caption("Click to expand and view the table schema")
+    with st.expander(f"Schema for Table: `{selected_table}`", expanded=False):
+        st.dataframe(schema_df)
 
-    st.subheader(f"First 10 Rows of `{selected_table}`")
     # Query data and display
     data_df = pd.read_sql_query(f"SELECT * FROM {selected_table} LIMIT 10", conn)
-    st.dataframe(data_df)
+    st.caption("Click to expand and view sample data")
+    with st.expander(f"First 10 Rows of `{selected_table}`", expanded=False):
+        st.dataframe(data_df)
 elif table_names:
     st.info("Select a table from the sidebar to view its details.")
 
@@ -167,7 +184,10 @@ if prompt := st.chat_input("What would you like to discover about the Database?"
         question = {"question": prompt}
         query = write_query({"question": question})
         result = execute_query({"query": query})
-        answer = generate_answer({"question": question, "query": query, "result": result})
+        answer = generate_answer(
+            {"question": question, "query": query, "result": result},
+            chat_history=st.session_state.messages
+        )
         full_query = query['query']
         st.markdown("- Generated SQL:")
         st.markdown(f"*{full_query}*")
